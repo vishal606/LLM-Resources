@@ -1,0 +1,1236 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap');
+
+  :root {
+    --book-bg: #fdf8f0;
+    --chapter-accent: #c0392b;
+    --text-dark: #1a1208;
+    --text-muted: #5a4a3a;
+    --border-warm: #e8d5b0;
+    --tag-bg: #fff3e0;
+    --tag-text: #8b4513;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+    --highlight: #fff9c4;
+    --nav-bg: #2c1810;
+    --nav-text: #f5e6c8;
+    --progress-color: #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hind Siliguri', sans-serif;
+    background: transparent;
+    color: var(--text-dark);
+  }
+
+  .book-container {
+    max-width: 820px;
+    margin: 0 auto;
+    background: var(--book-bg);
+    border: 1px solid var(--border-warm);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+
+  .book-header {
+    background: var(--nav-bg);
+    padding: 2rem 2.5rem 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .book-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(192,57,43,0.05) 10px, rgba(192,57,43,0.05) 20px);
+  }
+  .book-header h1 {
+    font-family: 'Noto Serif Bengali', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f5c842;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0.4rem;
+  }
+  .book-header .subtitle {
+    color: #e8d5b0;
+    font-size: 1rem;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1rem;
+  }
+  .book-header .badge-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .badge {
+    background: rgba(255,255,255,0.12);
+    color: #f5e6c8;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .badge.red { background: rgba(192,57,43,0.6); border-color: #c0392b; }
+
+  .toc-nav {
+    background: #3d2314;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .toc-label {
+    color: #e8d5b0;
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .toc-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #d4b896;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-family: 'Hind Siliguri', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .toc-btn:hover, .toc-btn.active {
+    background: var(--chapter-accent);
+    border-color: var(--chapter-accent);
+    color: white;
+  }
+
+  .content-area {
+    padding: 2rem 2.5rem;
+  }
+
+  .chapter {
+    display: none;
+  }
+  .chapter.active {
+    display: block;
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .chapter-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-warm);
+  }
+  .chapter-num {
+    background: var(--chapter-accent);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .chapter-title-block h2 {
+    font-family: 'Noto Serif Bengali', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .chapter-title-block .ch-sub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .level-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .level-basic { background: #e8f5e9; color: #2e7d32; }
+  .level-inter { background: #e3f2fd; color: #1565c0; }
+  .level-adv { background: #fce4ec; color: #c62828; }
+
+  .section {
+    margin-bottom: 1.5rem;
+  }
+  .section h3 {
+    font-family: 'Noto Serif Bengali', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #8b1a0a;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section h3::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background: var(--chapter-accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .section p, .section li {
+    font-size: 0.95rem;
+    line-height: 1.85;
+    color: #2d1f10;
+  }
+  .section ul, .section ol {
+    padding-left: 1.2rem;
+    margin-top: 0.4rem;
+  }
+  .section li {
+    margin-bottom: 0.35rem;
+  }
+  .section li strong {
+    color: #8b1a0a;
+  }
+
+  .info-box {
+    background: #fff8e1;
+    border-left: 4px solid #f39c12;
+    padding: 1rem 1.25rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+  .info-box.blue {
+    background: #e3f2fd;
+    border-color: #1976d2;
+  }
+  .info-box.green {
+    background: #e8f5e9;
+    border-color: #388e3c;
+  }
+  .info-box.red {
+    background: #fce4ec;
+    border-color: #c62828;
+  }
+  .info-box-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    color: #5a3a1a;
+  }
+  .info-box.blue .info-box-title { color: #0d47a1; }
+  .info-box.green .info-box-title { color: #1b5e20; }
+  .info-box.red .info-box-title { color: #b71c1c; }
+  .info-box p { font-size: 0.9rem; line-height: 1.7; color: #2d1f10; }
+
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+  }
+  .code-block .code-label {
+    font-size: 11px;
+    color: #6c7086;
+    margin-bottom: 8px;
+    font-family: monospace;
+  }
+  .code-block code {
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    color: var(--code-text);
+    line-height: 1.7;
+    white-space: pre;
+    display: block;
+  }
+  .kw { color: #cba6f7; }
+  .fn { color: #89b4fa; }
+  .str { color: #a6e3a1; }
+  .cm { color: #585b70; font-style: italic; }
+  .num { color: #fab387; }
+
+  .diagram-box {
+    border: 1.5px solid var(--border-warm);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin: 1rem 0;
+    background: white;
+  }
+  .diagram-box .d-title {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .flow-step {
+    background: var(--tag-bg);
+    border: 1.5px solid #d4956a;
+    color: #5a2d0c;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-align: center;
+    min-width: 90px;
+  }
+  .flow-step.hl {
+    background: var(--chapter-accent);
+    border-color: var(--chapter-accent);
+    color: white;
+  }
+  .flow-arrow {
+    color: #c0392b;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 1rem 0;
+  }
+  .comp-card {
+    border: 1px solid var(--border-warm);
+    border-radius: 8px;
+    padding: 1rem;
+    background: white;
+  }
+  .comp-card h4 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--chapter-accent);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-warm);
+  }
+  .comp-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .comp-card li {
+    font-size: 0.83rem;
+    padding: 3px 0;
+    color: var(--text-dark);
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .comp-card li::before { content: '▸'; color: #c0392b; font-size: 10px; flex-shrink: 0; }
+
+  .metric-strip {
+    display: flex;
+    gap: 10px;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+  }
+  .metric {
+    flex: 1;
+    min-width: 120px;
+    background: white;
+    border: 1px solid var(--border-warm);
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .m-val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--chapter-accent);
+  }
+  .metric .m-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .nav-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2.5rem;
+    border-top: 1px solid var(--border-warm);
+    background: #fdf5e8;
+  }
+  .nav-btn {
+    background: var(--nav-bg);
+    color: var(--nav-text);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-family: 'Hind Siliguri', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .nav-btn:hover { background: var(--chapter-accent); }
+  .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: #e8d5b0;
+    border-radius: 2px;
+    margin: 0 1rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--chapter-accent);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .page-info {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    min-width: 60px;
+  }
+</style>
+
+<div class="book-container">
+  <div class="book-header">
+    <h1>LLM ফাইন-টিউনিং: বাংলা গাইড</h1>
+    <p class="subtitle">Large Language Model Fine-Tuning — বেসিক থেকে অ্যাডভান্স</p>
+    <div class="badge-row">
+      <span class="badge">📘 ১০টি অধ্যায়</span>
+      <span class="badge">বাংলা মাধ্যম</span>
+      <span class="badge red">২০২৫ সালের তথ্য</span>
+      <span class="badge">Python + PyTorch</span>
+    </div>
+  </div>
+
+  <div class="toc-nav" id="toc">
+    <span class="toc-label">অধ্যায়</span>
+  </div>
+
+  <div class="content-area" id="content-area"></div>
+
+  <div class="nav-footer">
+    <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">← পূর্ববর্তী</button>
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <span class="page-info" id="page-info"></span>
+    <button class="nav-btn" id="next-btn" onclick="navigate(1)">পরবর্তী →</button>
+  </div>
+</div>
+
+<script>
+const chapters = [
+  {
+    num: 1,
+    title: "LLM কী? প্রাথমিক ধারণা",
+    sub: "Large Language Models পরিচিতি",
+    level: "basic",
+    levelText: "বেসিক",
+    content: `
+      <div class="section">
+        <h3>LLM কী?</h3>
+        <p>Large Language Model (LLM) হলো এক ধরনের কৃত্রিম বুদ্ধিমত্তার মডেল যা বিশাল পরিমাণ টেক্সট ডেটা দিয়ে ট্রেন করা হয়। এই মডেলগুলো মানুষের মতো ভাষা বুঝতে, তৈরি করতে এবং অনুবাদ করতে পারে।</p>
+        <ul>
+          <li><strong>GPT সিরিজ:</strong> OpenAI-এর তৈরি মডেল (GPT-4, GPT-4o)</li>
+          <li><strong>Claude:</strong> Anthropic-এর তৈরি মডেল</li>
+          <li><strong>LLaMA:</strong> Meta-এর ওপেন-সোর্স মডেল</li>
+          <li><strong>Gemini:</strong> Google DeepMind-এর মডেল</li>
+          <li><strong>Mistral:</strong> ইউরোপীয় ওপেন-সোর্স মডেল</li>
+        </ul>
+      </div>
+
+      <div class="info-box blue">
+        <div class="info-box-title">💡 মূল ধারণা</div>
+        <p>LLM মূলত Transformer আর্কিটেকচারের উপর ভিত্তি করে তৈরি। ২০১৭ সালে Google-এর "Attention is All You Need" পেপারে এই আর্কিটেকচার প্রকাশিত হয়েছিল।</p>
+      </div>
+
+      <div class="section">
+        <h3>LLM কীভাবে কাজ করে?</h3>
+        <div class="diagram-box">
+          <div class="d-title">LLM প্রি-ট্রেনিং পাইপলাইন</div>
+          <div class="flow-row">
+            <div class="flow-step">কাঁচা টেক্সট ডেটা</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">টোকেনাইজেশন</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step hl">Transformer</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">প্রি-ট্রেইনড মডেল</div>
+          </div>
+        </div>
+        <ul>
+          <li><strong>টোকেনাইজেশন:</strong> টেক্সটকে ছোট ছোট "টোকেন"-এ ভাগ করা হয়</li>
+          <li><strong>Embedding:</strong> প্রতিটি টোকেনকে সংখ্যার ভেক্টরে রূপান্তর করা হয়</li>
+          <li><strong>Self-Attention:</strong> শব্দগুলোর মধ্যে সম্পর্ক বোঝা হয়</li>
+          <li><strong>Next Token Prediction:</strong> পরবর্তী শব্দ কী হবে তা অনুমান করা হয়</li>
+        </ul>
+      </div>
+
+      <div class="metric-strip">
+        <div class="metric"><div class="m-val">175B</div><div class="m-label">GPT-3 প্যারামিটার</div></div>
+        <div class="metric"><div class="m-val">70B</div><div class="m-label">LLaMA-3 প্যারামিটার</div></div>
+        <div class="metric"><div class="m-val">~1T</div><div class="m-label">টোকেন প্রি-ট্রেনিং</div></div>
+        <div class="metric"><div class="m-val">96+</div><div class="m-label">Transformer লেয়ার (GPT-4)</div></div>
+      </div>
+    `
+  },
+  {
+    num: 2,
+    title: "ফাইন-টিউনিং কী এবং কেন?",
+    sub: "Pre-training vs Fine-tuning",
+    level: "basic",
+    levelText: "বেসিক",
+    content: `
+      <div class="section">
+        <h3>ফাইন-টিউনিং কী?</h3>
+        <p>একটি প্রি-ট্রেইনড LLM-কে নির্দিষ্ট কাজের জন্য আরও ভালো করে তোলার প্রক্রিয়াই হলো ফাইন-টিউনিং। অর্থাৎ, বিশাল ডেটায় শেখা মডেলকে আমাদের নির্দিষ্ট ডোমেইনের ছোট ডেটায় আবার ট্রেন করা হয়।</p>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comp-card">
+          <h4>🏗️ প্রি-ট্রেনিং</h4>
+          <ul>
+            <li>কোটি কোটি ডকুমেন্ট</li>
+            <li>মাসের পর মাস সময়</li>
+            <li>লক্ষ লক্ষ ডলার খরচ</li>
+            <li>সাধারণ জ্ঞান শেখে</li>
+            <li>GPU হাজারে হিসাব</li>
+          </ul>
+        </div>
+        <div class="comp-card">
+          <h4>🎯 ফাইন-টিউনিং</h4>
+          <ul>
+            <li>কয়েক হাজার উদাহরণ</li>
+            <li>ঘণ্টা থেকে কয়েকদিন</li>
+            <li>তুলনামূলক কম খরচ</li>
+            <li>নির্দিষ্ট কাজে দক্ষ</li>
+            <li>একটি GPU-তেও সম্ভব</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>কেন ফাইন-টিউনিং করবেন?</h3>
+        <ul>
+          <li><strong>ডোমেইন-নির্দিষ্টতা:</strong> মেডিকেল, আইনি, বা বাংলা ভাষার ডেটায় বিশেষ দক্ষতা</li>
+          <li><strong>ইনস্ট্রাকশন ফলো:</strong> নির্দিষ্ট ফরম্যাটে উত্তর দেওয়া শেখানো</li>
+          <li><strong>গোপনীয়তা:</strong> নিজের সার্ভারে মডেল চালানো</li>
+          <li><strong>খরচ কমানো:</strong> ছোট ফাইন-টিউনড মডেল, বড় API-এর চেয়ে সস্তা</li>
+          <li><strong>অফলাইন ব্যবহার:</strong> ইন্টারনেট ছাড়া চালানো</li>
+        </ul>
+      </div>
+
+      <div class="info-box green">
+        <div class="info-box-title">✅ উদাহরণ ব্যবহার ক্ষেত্র</div>
+        <p>বাংলাদেশের একটি হাসপাতাল তাদের মেডিকেল রিপোর্ট বাংলায় সারাংশ তৈরি করতে LLaMA-3 ফাইন-টিউন করতে পারে — শুধুমাত্র ১০,০০০ রিপোর্টের ডেটা ব্যবহার করে।</p>
+      </div>
+
+      <div class="section">
+        <h3>ফাইন-টিউনিং-এর ধরন</h3>
+        <ul>
+          <li><strong>Supervised Fine-Tuning (SFT):</strong> ইনপুট-আউটপুট জোড়া দিয়ে শেখানো</li>
+          <li><strong>RLHF:</strong> মানুষের ফিডব্যাক থেকে শেখা</li>
+          <li><strong>PEFT / LoRA:</strong> কম প্যারামিটার আপডেট করে ফাইন-টিউনিং</li>
+          <li><strong>Instruction Tuning:</strong> নির্দেশনা মানতে শেখানো</li>
+          <li><strong>DPO:</strong> পছন্দ-অপছন্দ থেকে শেখা (Direct Preference Optimization)</li>
+        </ul>
+      </div>
+    `
+  },
+  {
+    num: 3,
+    title: "ডেটা প্রস্তুতি",
+    sub: "Dataset collection, cleaning & formatting",
+    level: "basic",
+    levelText: "বেসিক",
+    content: `
+      <div class="section">
+        <h3>ডেটাসেট তৈরি — সবচেয়ে গুরুত্বপূর্ণ ধাপ</h3>
+        <p>ফাইন-টিউনিং-এর সাফল্য ৭০%-ই নির্ভর করে ডেটার গুণগত মানের উপর। "Garbage in, Garbage out" — খারাপ ডেটা দিলে খারাপ মডেল পাবেন।</p>
+      </div>
+
+      <div class="section">
+        <h3>ডেটার ফরম্যাট</h3>
+        <p>সবচেয়ে প্রচলিত ফরম্যাট হলো <strong>Instruction-Input-Output</strong> বা <strong>Conversation</strong> ফরম্যাট:</p>
+        <div class="code-block">
+          <div class="code-label">dataset_example.jsonl</div>
+          <code><span class="cm">// Instruction format (Alpaca style)</span>
+{
+  <span class="str">"instruction"</span>: <span class="str">"নিচের বাংলা টেক্সটটি ইংরেজিতে অনুবাদ করুন"</span>,
+  <span class="str">"input"</span>: <span class="str">"আমি বাংলাদেশে থাকি।"</span>,
+  <span class="str">"output"</span>: <span class="str">"I live in Bangladesh."</span>
+}
+
+<span class="cm">// Conversation format (ChatML style)</span>
+{
+  <span class="str">"messages"</span>: [
+    {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"আপনি একজন সহায়ক AI"</span>},
+    {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"পাইথন কী?"</span>},
+    {<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: <span class="str">"পাইথন একটি প্রোগ্রামিং ভাষা..."</span>}
+  ]
+}</code>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>ডেটা পরিষ্কার করা</h3>
+        <div class="code-block">
+          <div class="code-label">data_cleaning.py</div>
+          <code><span class="kw">import</span> json
+<span class="kw">from</span> datasets <span class="kw">import</span> Dataset
+
+<span class="kw">def</span> <span class="fn">clean_data</span>(examples):
+    cleaned = []
+    <span class="kw">for</span> ex <span class="kw">in</span> examples:
+        <span class="cm"># খুব ছোট বা বড় উদাহরণ বাদ দিন</span>
+        <span class="kw">if</span> <span class="num">10</span> < len(ex[<span class="str">'output'</span>]) < <span class="num">2000</span>:
+            cleaned.append(ex)
+    <span class="kw">return</span> cleaned
+
+<span class="cm"># ডেটা লোড করুন</span>
+<span class="kw">with</span> open(<span class="str">'data.jsonl'</span>) <span class="kw">as</span> f:
+    data = [json.loads(line) <span class="kw">for</span> line <span class="kw">in</span> f]
+
+clean = clean_data(data)
+dataset = Dataset.from_list(clean)
+<span class="fn">print</span>(f<span class="str">"মোট উদাহরণ: {len(dataset)}"</span>)</code>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <div class="info-box-title">📊 কতটুকু ডেটা দরকার?</div>
+        <p>সাধারণ কাজের জন্য ১,০০০–১০,০০০ উদাহরণ। জটিল ডোমেইনের জন্য ৫০,০০০+। গুণমান সংখ্যার চেয়ে বেশি গুরুত্বপূর্ণ।</p>
+      </div>
+
+      <div class="section">
+        <h3>বাংলা ডেটাসেট সোর্স</h3>
+        <ul>
+          <li><strong>IndicCorp:</strong> ভারতীয় উপমহাদেশের ভাষার বড় কর্পাস</li>
+          <li><strong>CC-100:</strong> Common Crawl থেকে বাংলা ডেটা</li>
+          <li><strong>BanglaLM:</strong> Hugging Face-এ উপলব্ধ</li>
+          <li><strong>নিজের ডেটা:</strong> প্রশ্নোত্তর, রিভিউ, নিউজ আর্টিকেল সংগ্রহ</li>
+        </ul>
+      </div>
+    `
+  },
+  {
+    num: 4,
+    title: "SFT — Supervised Fine-Tuning",
+    sub: "মূল ফাইন-টিউনিং পদ্ধতি",
+    level: "inter",
+    levelText: "ইন্টারমিডিয়েট",
+    content: `
+      <div class="section">
+        <h3>SFT কী?</h3>
+        <p>Supervised Fine-Tuning হলো সবচেয়ে সরল এবং প্রচলিত ফাইন-টিউনিং পদ্ধতি। এখানে আমরা মডেলকে (input, expected_output) জোড়া দেখিয়ে শেখাই। মডেল শেখে — এই ধরনের প্রশ্নে এই ধরনের উত্তর দিতে হয়।</p>
+      </div>
+
+      <div class="section">
+        <h3>Hugging Face দিয়ে SFT</h3>
+        <div class="code-block">
+          <div class="code-label">sft_training.py</div>
+          <code><span class="kw">from</span> transformers <span class="kw">import</span> AutoModelForCausalLM, AutoTokenizer
+<span class="kw">from</span> trl <span class="kw">import</span> SFTTrainer, SFTConfig
+<span class="kw">from</span> datasets <span class="kw">import</span> load_dataset
+
+<span class="cm"># মডেল ও টোকেনাইজার লোড</span>
+model_name = <span class="str">"meta-llama/Llama-3.2-1B"</span>
+model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+<span class="cm"># ডেটাসেট লোড</span>
+dataset = load_dataset(<span class="str">"আপনার_ডেটাসেট"</span>, split=<span class="str">"train"</span>)
+
+<span class="cm"># ট্রেনিং কনফিগ</span>
+config = SFTConfig(
+    output_dir=<span class="str">"./finetuned_model"</span>,
+    num_train_epochs=<span class="num">3</span>,
+    per_device_train_batch_size=<span class="num">4</span>,
+    learning_rate=<span class="num">2e-5</span>,
+    max_seq_length=<span class="num">512</span>,
+    logging_steps=<span class="num">10</span>,
+)
+
+<span class="cm"># ট্রেনার তৈরি ও ট্রেনিং শুরু</span>
+trainer = SFTTrainer(
+    model=model,
+    args=config,
+    train_dataset=dataset,
+    tokenizer=tokenizer,
+)
+trainer.train()
+trainer.save_model()</code>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>গুরুত্বপূর্ণ হাইপারপ্যারামিটার</h3>
+        <ul>
+          <li><strong>Learning Rate (lr):</strong> সাধারণত ১e-5 থেকে ৫e-5 — LLM ফাইন-টিউনিং-এ খুব গুরুত্বপূর্ণ</li>
+          <li><strong>Batch Size:</strong> GPU মেমরি অনুযায়ী, সাধারণত ৪–৩২</li>
+          <li><strong>Epochs:</strong> ১–৫ — বেশি হলে Overfitting হতে পারে</li>
+          <li><strong>Max Sequence Length:</strong> ৫১২–২০৪৮ টোকেন</li>
+          <li><strong>Warmup Steps:</strong> শুরুতে lr ধীরে বাড়ানো</li>
+        </ul>
+      </div>
+
+      <div class="info-box red">
+        <div class="info-box-title">⚠️ সতর্কতা: Catastrophic Forgetting</div>
+        <p>ফাইন-টিউনিং করলে মডেল পুরনো জ্ঞান ভুলে যেতে পারে। এটি "Catastrophic Forgetting" সমস্যা। সমাধান: LoRA বা খুব কম learning rate ব্যবহার করুন।</p>
+      </div>
+    `
+  },
+  {
+    num: 5,
+    title: "LoRA ও PEFT পদ্ধতি",
+    sub: "Parameter-Efficient Fine-Tuning",
+    level: "inter",
+    levelText: "ইন্টারমিডিয়েট",
+    content: `
+      <div class="section">
+        <h3>LoRA কী? কেন প্রয়োজন?</h3>
+        <p>সম্পূর্ণ LLM ফাইন-টিউন করতে বিশাল GPU মেমরি লাগে। LoRA (Low-Rank Adaptation) এই সমস্যার সমাধান — মডেলের মাত্র ০.১–১% প্যারামিটার আপডেট করে একই মানের ফাইন-টিউনিং সম্ভব!</p>
+      </div>
+
+      <div class="section">
+        <h3>LoRA কীভাবে কাজ করে?</h3>
+        <div class="diagram-box">
+          <div class="d-title">LoRA ম্যাথেমেটিক্যাল আইডিয়া</div>
+          <div class="flow-row">
+            <div class="flow-step">W (মূল weight)<br>জমানো থাকে</div>
+            <div class="flow-arrow">+</div>
+            <div class="flow-step hl">ΔW = A × B<br>(LoRA অ্যাডাপ্টার)</div>
+            <div class="flow-arrow">=</div>
+            <div class="flow-step">W + ΔW<br>ফাইন-টিউনড</div>
+          </div>
+        </div>
+        <p>মূল weight matrix W (যেমন ১০০০×১০০০) ফ্রিজ থাকে। শুধু দুটো ছোট matrix A (১০০০×৮) এবং B (৮×১০০০) শেখা হয় — এতে প্যারামিটার সংখ্যা ৯৯% কমে!</p>
+      </div>
+
+      <div class="section">
+        <h3>QLoRA — আরও কম মেমরিতে</h3>
+        <div class="code-block">
+          <div class="code-label">qlora_setup.py</div>
+          <code><span class="kw">from</span> peft <span class="kw">import</span> LoraConfig, get_peft_model
+<span class="kw">from</span> transformers <span class="kw">import</span> BitsAndBytesConfig
+<span class="kw">import</span> torch
+
+<span class="cm"># ৪-বিট কোয়ান্টাইজেশন কনফিগ</span>
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=<span class="kw">True</span>,
+    bnb_4bit_quant_type=<span class="str">"nf4"</span>,
+    bnb_4bit_compute_dtype=torch.float16
+)
+
+<span class="cm"># LoRA কনফিগ</span>
+lora_config = LoraConfig(
+    r=<span class="num">16</span>,              <span class="cm"># rank — কত ছোট matrix</span>
+    lora_alpha=<span class="num">32</span>,     <span class="cm"># scaling factor</span>
+    target_modules=[<span class="str">"q_proj"</span>, <span class="str">"v_proj"</span>],
+    lora_dropout=<span class="num">0.05</span>,
+    bias=<span class="str">"none"</span>,
+    task_type=<span class="str">"CAUSAL_LM"</span>
+)
+
+<span class="cm"># মডেল লোড করুন ৪-বিটে</span>
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    quantization_config=bnb_config,
+    device_map=<span class="str">"auto"</span>
+)
+model = get_peft_model(model, lora_config)
+model.print_trainable_parameters()
+<span class="cm"># Output: trainable params: 4,194,304 || all params: 1.24B (0.34%)</span></code>
+        </div>
+      </div>
+
+      <div class="metric-strip">
+        <div class="metric"><div class="m-val">0.3%</div><div class="m-label">LoRA ট্রেইনেবল প্যারামিটার</div></div>
+        <div class="metric"><div class="m-val">4-bit</div><div class="m-label">QLoRA মেমরি</div></div>
+        <div class="metric"><div class="m-val">~6GB</div><div class="m-label">7B মডেল QLoRA-তে</div></div>
+        <div class="metric"><div class="m-val">≈100%</div><div class="m-label">মান বজায় রাখে</div></div>
+      </div>
+
+      <div class="info-box green">
+        <div class="info-box-title">✅ র্যাঙ্ক (r) কতটুকু রাখবেন?</div>
+        <p>সাধারণ কাজে r=8 বা r=16 যথেষ্ট। জটিল কাজে r=32 বা r=64 ব্যবহার করুন। বড় r মানে বেশি প্যারামিটার ও ভালো মান কিন্তু বেশি মেমরি।</p>
+      </div>
+    `
+  },
+  {
+    num: 6,
+    title: "RLHF ও DPO",
+    sub: "মানুষের পছন্দ থেকে শেখা",
+    level: "inter",
+    levelText: "ইন্টারমিডিয়েট",
+    content: `
+      <div class="section">
+        <h3>RLHF কী?</h3>
+        <p>Reinforcement Learning from Human Feedback (RLHF) হলো GPT-4, Claude এবং ChatGPT-কে "helpful, harmless, honest" করার মূল পদ্ধতি। এখানে মানুষ মডেলের দুটো উত্তর দেখে ভালো উত্তরটি বেছে নেয় — এই তথ্য দিয়ে মডেল শেখে।</p>
+      </div>
+
+      <div class="section">
+        <h3>RLHF পাইপলাইন</h3>
+        <div class="diagram-box">
+          <div class="d-title">RLHF তিনটি ধাপ</div>
+          <div class="flow-row">
+            <div class="flow-step">১. SFT মডেল<br>তৈরি</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step hl">২. Reward<br>Model ট্রেন</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">৩. PPO দিয়ে<br>অপ্টিমাইজ</div>
+          </div>
+        </div>
+        <ul>
+          <li><strong>ধাপ ১:</strong> প্রথমে SFT দিয়ে বেস মডেল তৈরি করা হয়</li>
+          <li><strong>ধাপ ২:</strong> মানুষের রেটিং থেকে "Reward Model" শেখানো হয়</li>
+          <li><strong>ধাপ ৩:</strong> PPO অ্যালগরিদম দিয়ে মডেলকে বেশি reward পেতে অপ্টিমাইজ করা হয়</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>DPO — RLHF-এর সহজ বিকল্প</h3>
+        <p>Direct Preference Optimization (DPO) RLHF-এর জটিলতা এড়িয়ে সরাসরি "chosen vs rejected" উত্তর জোড়া থেকে শেখে। ২০২৩ সালে প্রকাশিত এই পদ্ধতি এখন খুব জনপ্রিয়।</p>
+        <div class="code-block">
+          <div class="code-label">dpo_training.py</div>
+          <code><span class="kw">from</span> trl <span class="kw">import</span> DPOTrainer, DPOConfig
+
+<span class="cm"># DPO ডেটাসেট ফরম্যাট</span>
+<span class="cm"># {"prompt": "প্রশ্ন", "chosen": "ভালো উত্তর", "rejected": "খারাপ উত্তর"}</span>
+
+dpo_config = DPOConfig(
+    output_dir=<span class="str">"./dpo_model"</span>,
+    num_train_epochs=<span class="num">1</span>,
+    per_device_train_batch_size=<span class="num">2</span>,
+    beta=<span class="num">0.1</span>,      <span class="cm"># KL penalty</span>
+    learning_rate=<span class="num">5e-7</span>,
+)
+
+trainer = DPOTrainer(
+    model=sft_model,
+    ref_model=ref_model,  <span class="cm"># মূল SFT মডেল</span>
+    args=dpo_config,
+    train_dataset=preference_dataset,
+    tokenizer=tokenizer,
+)
+trainer.train()</code>
+        </div>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comp-card">
+          <h4>RLHF</h4>
+          <ul>
+            <li>৩টি পৃথক মডেল দরকার</li>
+            <li>PPO অ্যালগরিদম জটিল</li>
+            <li>ট্রেনিং অস্থির হতে পারে</li>
+            <li>বেশি মেমরি লাগে</li>
+          </ul>
+        </div>
+        <div class="comp-card">
+          <h4>DPO (প্রস্তাবিত)</h4>
+          <ul>
+            <li>Reward model দরকার নেই</li>
+            <li>সরল ও স্থিতিশীল</li>
+            <li>কম মেমরি</li>
+            <li>ভালো পারফরম্যান্স</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    num: 7,
+    title: "মডেল মূল্যায়ন",
+    sub: "Evaluation metrics ও benchmarks",
+    level: "inter",
+    levelText: "ইন্টারমিডিয়েট",
+    content: `
+      <div class="section">
+        <h3>কীভাবে বুঝবেন মডেল ভালো হয়েছে?</h3>
+        <p>ফাইন-টিউনিং-এর পরে মডেলের মান মাপতে বিভিন্ন মেট্রিক ও পদ্ধতি ব্যবহার করা হয়।</p>
+      </div>
+
+      <div class="section">
+        <h3>স্বয়ংক্রিয় মেট্রিক</h3>
+        <ul>
+          <li><strong>Perplexity:</strong> মডেল কতটা "বিস্মিত" — কম মানে ভালো</li>
+          <li><strong>BLEU Score:</strong> অনুবাদ মূল্যায়নে ব্যবহৃত, রেফারেন্সের সাথে মিল</li>
+          <li><strong>ROUGE:</strong> সারাংশ মূল্যায়নে, recall-ভিত্তিক</li>
+          <li><strong>BERTScore:</strong> অর্থগত মিল পরিমাপ</li>
+          <li><strong>Exact Match:</strong> প্রশ্নোত্তরে হুবহু মিল</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>LLM-as-Judge পদ্ধতি</h3>
+        <div class="code-block">
+          <div class="code-label">llm_evaluation.py</div>
+          <code><span class="kw">from</span> anthropic <span class="kw">import</span> Anthropic
+
+client = Anthropic()
+
+<span class="kw">def</span> <span class="fn">evaluate_with_llm</span>(question, model_answer, reference):
+    prompt = f<span class="str">"""আপনি একজন নিরপেক্ষ মূল্যায়নকারী।
+প্রশ্ন: {question}
+মডেলের উত্তর: {model_answer}
+সঠিক উত্তর: {reference}
+
+১-৫ স্কেলে উত্তরের মান দিন এবং কারণ বলুন।"""</span>
+
+    response = client.messages.create(
+        model=<span class="str">"claude-sonnet-4-20250514"</span>,
+        max_tokens=<span class="num">500</span>,
+        messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: prompt}]
+    )
+    <span class="kw">return</span> response.content[<span class="num">0</span>].text</code>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>বেঞ্চমার্ক ডেটাসেট</h3>
+        <ul>
+          <li><strong>MMLU:</strong> বহু বিষয়ের জ্ঞান পরীক্ষা (১৪টি ক্যাটেগরি)</li>
+          <li><strong>HumanEval:</strong> কোড জেনারেশন মূল্যায়ন</li>
+          <li><strong>MT-Bench:</strong> মাল্টি-টার্ন কথোপকথন মূল্যায়ন</li>
+          <li><strong>BanglaLM Bench:</strong> বাংলা ভাষার মূল্যায়ন (নতুন)</li>
+        </ul>
+      </div>
+
+      <div class="info-box blue">
+        <div class="info-box-title">💡 সেরা পদ্ধতি</div>
+        <p>স্বয়ংক্রিয় মেট্রিকের পাশাপাশি ২০–৫০টি উদাহরণ নিজে হাতে পরীক্ষা করুন। Human evaluation সবচেয়ে বিশ্বাসযোগ্য।</p>
+      </div>
+    `
+  },
+  {
+    num: 8,
+    title: "ডিপ্লয়মেন্ট ও সার্ভিং",
+    sub: "প্রোডাকশনে মডেল চালানো",
+    level: "adv",
+    levelText: "অ্যাডভান্স",
+    content: `
+      <div class="section">
+        <h3>ফাইন-টিউনড মডেল সার্ভ করার পদ্ধতি</h3>
+        <p>মডেল ট্রেন করার পরে সেটি রিয়েল অ্যাপ্লিকেশনে ব্যবহার করতে ডিপ্লয়মেন্ট দরকার। বিভিন্ন পদ্ধতি রয়েছে গতি ও খরচের ভারসাম্য রেখে।</p>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comp-card">
+          <h4>🚀 vLLM (প্রস্তাবিত)</h4>
+          <ul>
+            <li>সবচেয়ে দ্রুত ইনফারেন্স</li>
+            <li>Continuous batching</li>
+            <li>OpenAI-সামঞ্জস্যপূর্ণ API</li>
+            <li>GPU দরকার</li>
+          </ul>
+        </div>
+        <div class="comp-card">
+          <h4>🦙 Ollama (সহজ)</h4>
+          <ul>
+            <li>লোকাল কম্পিউটারে</li>
+            <li>CPU-তেও চলে</li>
+            <li>সহজ ইনস্টলেশন</li>
+            <li>ধীরে চলে</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>vLLM দিয়ে সার্ভার</h3>
+        <div class="code-block">
+          <div class="code-label">deploy_vllm.sh + client.py</div>
+          <code><span class="cm"># সার্ভার চালু করুন</span>
+$ python -m vllm.entrypoints.openai.api_server \
+    --model ./finetuned_model \
+    --port 8000
+
+<span class="cm"># Python থেকে ব্যবহার</span>
+<span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+
+client = OpenAI(base_url=<span class="str">"http://localhost:8000/v1"</span>, api_key=<span class="str">"na"</span>)
+
+response = client.chat.completions.create(
+    model=<span class="str">"finetuned_model"</span>,
+    messages=[
+        {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"বাংলায় কিছু বলুন"</span>}
+    ]
+)
+<span class="fn">print</span>(response.choices[<span class="num">0</span>].message.content)</code>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>মডেল কোয়ান্টাইজেশন (প্রোডাকশনে)</h3>
+        <ul>
+          <li><strong>GPTQ:</strong> পোস্ট-ট্রেনিং কোয়ান্টাইজেশন, GPU-তে দ্রুত</li>
+          <li><strong>GGUF/llama.cpp:</strong> CPU-তে চালানোর জন্য</li>
+          <li><strong>AWQ:</strong> অ্যাক্টিভেশন-সচেতন কোয়ান্টাইজেশন</li>
+          <li><strong>INT8/INT4:</strong> মেমরি ও গতির আপোষ</li>
+        </ul>
+      </div>
+
+      <div class="info-box">
+        <div class="info-box-title">⚡ পারফরম্যান্স টিপস</div>
+        <p>প্রোডাকশনে Flash Attention 2 ব্যবহার করুন (৩–৫x গতি বৃদ্ধি)। Tensor Parallelism দিয়ে একাধিক GPU-তে ভাগ করুন। KV cache-এর আকার বাড়িয়ে throughput উন্নত করুন।</p>
+      </div>
+    `
+  },
+  {
+    num: 9,
+    title: "অ্যাডভান্স কৌশল",
+    sub: "Merging, RAG, Unsloth, Flash Attention",
+    level: "adv",
+    levelText: "অ্যাডভান্স",
+    content: `
+      <div class="section">
+        <h3>মডেল মার্জিং</h3>
+        <p>একাধিক ফাইন-টিউনড মডেলকে একত্রিত করে একটি শক্তিশালী মডেল তৈরি করা সম্ভব — এটি "Model Merging"।</p>
+        <div class="code-block">
+          <div class="code-label">model_merging.py (mergekit)</div>
+          <code><span class="cm"># merge_config.yaml</span>
+models:
+  - model: bangla-finetuned-v1
+    parameters: {weight: <span class="num">0.6</span>}
+  - model: code-finetuned-v1
+    parameters: {weight: <span class="num">0.4</span>}
+merge_method: ties  <span class="cm"># বা slerp, dare_ties</span>
+base_model: meta-llama/Llama-3.2-1B
+
+<span class="cm"># মার্জ করুন</span>
+$ mergekit-yaml merge_config.yaml ./merged_model</code>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Unsloth — দ্রুত ফাইন-টিউনিং</h3>
+        <div class="code-block">
+          <div class="code-label">unsloth_training.py</div>
+          <code><span class="kw">from</span> unsloth <span class="kw">import</span> FastLanguageModel
+
+<span class="cm"># ২x দ্রুত লোড ও ট্রেনিং</span>
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name=<span class="str">"unsloth/llama-3.2-1b-bnb-4bit"</span>,
+    max_seq_length=<span class="num">2048</span>,
+    load_in_4bit=<span class="kw">True</span>,
+)
+
+model = FastLanguageModel.get_peft_model(
+    model, r=<span class="num">16</span>, lora_alpha=<span class="num">16</span>,
+    target_modules=[<span class="str">"q_proj"</span>, <span class="str">"k_proj"</span>, <span class="str">"v_proj"</span>, <span class="str">"o_proj"</span>],
+)
+<span class="cm"># Unsloth ৮০% কম মেমরি ব্যবহার করে</span></code>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>RAG vs Fine-tuning কোনটি বেছে নেবেন?</h3>
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>📚 RAG ব্যবহার করুন যখন</h4>
+            <ul>
+              <li>ডেটা ঘন ঘন আপডেট হয়</li>
+              <li>সোর্স উল্লেখ দরকার</li>
+              <li>নির্দিষ্ট ডকুমেন্ট থেকে উত্তর</li>
+              <li>দ্রুত শুরু করতে চান</li>
+            </ul>
+          </div>
+          <div class="comp-card">
+            <h4>🎯 Fine-tuning করুন যখন</h4>
+            <ul>
+              <li>আচরণ বদলাতে হবে</li>
+              <li>নির্দিষ্ট ফরম্যাট দরকার</li>
+              <li>ডোমেইন-নির্দিষ্ট ভাষা</li>
+              <li>লেটেন্সি কম চাই</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box green">
+        <div class="info-box-title">💪 সেরা কৌশল: RAG + Fine-tuning</div>
+        <p>অনেক প্রোডাকশন সিস্টেম দুটোই ব্যবহার করে — ফাইন-টিউনিং করা বেস মডেলে RAG যোগ করলে সর্বোচ্চ পারফরম্যান্স পাওয়া যায়।</p>
+      </div>
+    `
+  },
+  {
+    num: 10,
+    title: "বাস্তব প্রজেক্ট",
+    sub: "বাংলা চ্যাটবট তৈরির পূর্ণ গাইড",
+    level: "adv",
+    levelText: "অ্যাডভান্স",
+    content: `
+      <div class="section">
+        <h3>প্রজেক্ট: বাংলা কাস্টমার সাপোর্ট চ্যাটবট</h3>
+        <p>এই প্রজেক্টে আমরা LLaMA-3.2-1B মডেলকে বাংলায় ই-কমার্স কাস্টমার সাপোর্টের জন্য ফাইন-টিউন করব।</p>
+      </div>
+
+      <div class="section">
+        <h3>পূর্ণ পাইপলাইন</h3>
+        <div class="diagram-box">
+          <div class="d-title">শুরু থেকে শেষ পর্যন্ত</div>
+          <div class="flow-row">
+            <div class="flow-step">ডেটা সংগ্রহ</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">পরিষ্কার</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step hl">QLoRA ট্রেন</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">মূল্যায়ন</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">ডিপ্লয়</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>সম্পূর্ণ কোড</h3>
+        <div class="code-block">
+          <div class="code-label">full_project.py</div>
+          <code><span class="cm"># ধাপ ১: প্রয়োজনীয় লাইব্রেরি</span>
+<span class="kw">from</span> unsloth <span class="kw">import</span> FastLanguageModel
+<span class="kw">from</span> trl <span class="kw">import</span> SFTTrainer, SFTConfig
+<span class="kw">from</span> datasets <span class="kw">import</span> Dataset
+<span class="kw">import</span> json, torch
+
+<span class="cm"># ধাপ ২: মডেল লোড</span>
+model, tokenizer = FastLanguageModel.from_pretrained(
+    <span class="str">"unsloth/llama-3.2-1b-bnb-4bit"</span>,
+    max_seq_length=<span class="num">1024</span>,
+    load_in_4bit=<span class="kw">True</span>
+)
+model = FastLanguageModel.get_peft_model(
+    model, r=<span class="num">16</span>, lora_alpha=<span class="num">32</span>
+)
+
+<span class="cm"># ধাপ ৩: বাংলা ডেটা ফরম্যাট</span>
+<span class="kw">def</span> <span class="fn">format_prompt</span>(example):
+    <span class="kw">return</span> {<span class="str">"text"</span>: f<span class="str">"""&lt;|system|&gt;
+আপনি একটি বাংলাদেশি ই-কমার্স সাইটের সহায়ক।
+&lt;|user|&gt;
+{example['question']}
+&lt;|assistant|&gt;
+{example['answer']}&lt;|end|&gt;"""</span>}
+
+<span class="cm"># ধাপ ৪: ট্রেনিং</span>
+trainer = SFTTrainer(
+    model=model,
+    args=SFTConfig(
+        output_dir=<span class="str">"./bangla_chatbot"</span>,
+        num_train_epochs=<span class="num">3</span>,
+        per_device_train_batch_size=<span class="num">4</span>,
+        learning_rate=<span class="num">2e-4</span>,
+        dataset_text_field=<span class="str">"text"</span>,
+    ),
+    train_dataset=dataset.map(format_prompt),
+    tokenizer=tokenizer,
+)
+trainer.train()
+
+<span class="cm"># ধাপ ৫: GGUF ফরম্যাটে সেভ (Ollama-র জন্য)</span>
+model.save_pretrained_gguf(
+    <span class="str">"bangla_chatbot_gguf"</span>,
+    tokenizer, quantization_method=<span class="str">"q4_k_m"</span>
+)</code>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>পরবর্তী শেখার পথ</h3>
+        <ul>
+          <li><strong>Multimodal Fine-tuning:</strong> ছবি + টেক্সট একসাথে</li>
+          <li><strong>Constitutional AI:</strong> নীতিমালা থেকে শেখা</li>
+          <li><strong>Mixture of Experts (MoE):</strong> বড় মডেল আর্কিটেকচার</li>
+          <li><strong>Continual Learning:</strong> ক্রমাগত নতুন তথ্য শেখানো</li>
+          <li><strong>Hugging Face Hub:</strong> মডেল শেয়ার করুন সমাজের সাথে</li>
+        </ul>
+      </div>
+
+      <div class="info-box green">
+        <div class="info-box-title">🎉 অভিনন্দন! আপনি সম্পূর্ণ গাইড শেষ করেছেন</div>
+        <p>এখন আপনার কাছে LLM ফাইন-টিউনিং-এর সম্পূর্ণ জ্ঞান আছে। প্র্যাক্টিস করুন, পরীক্ষা করুন, এবং বাংলায় AI তৈরিতে অবদান রাখুন!</p>
+      </div>
+    `
+  }
+];
+
+let current = 0;
+
+function levelClass(l) {
+  return l === 'basic' ? 'level-basic' : l === 'inter' ? 'level-inter' : 'level-adv';
+}
+
+function render() {
+  const ch = chapters[current];
+  const area = document.getElementById('content-area');
+  area.innerHTML = `
+    <div class="chapter active">
+      <div class="chapter-header">
+        <div class="chapter-num">${ch.num}</div>
+        <div class="chapter-title-block">
+          <h2>${ch.title} <span class="level-tag ${levelClass(ch.level)}">${ch.levelText}</span></h2>
+          <div class="ch-sub">${ch.sub}</div>
+        </div>
+      </div>
+      ${ch.content}
+    </div>
+  `;
+  document.getElementById('progress').style.width = `${((current + 1) / chapters.length) * 100}%`;
+  document.getElementById('page-info').textContent = `${current + 1} / ${chapters.length}`;
+  document.getElementById('prev-btn').disabled = current === 0;
+  document.getElementById('next-btn').disabled = current === chapters.length - 1;
+  document.querySelectorAll('.toc-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === current);
+  });
+}
+
+function navigate(dir) {
+  current = Math.max(0, Math.min(chapters.length - 1, current + dir));
+  render();
+  document.querySelector('.book-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+const toc = document.getElementById('toc');
+chapters.forEach((ch, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'toc-btn';
+  btn.textContent = `${ch.num}. ${ch.title.substring(0, 12)}…`;
+  btn.onclick = () => { current = i; render(); };
+  toc.appendChild(btn);
+});
+
+render();
+</script>
